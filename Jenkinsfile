@@ -51,7 +51,6 @@ pipeline {
                 echo 'Building deb/rpm packages'
                 buildStage(
                     addCarbonioRepos: true,
-                    parallelBuilds: false,
                     prepare: true,
                     debugSymbols: env.TAG_NAME as boolean,
                 )

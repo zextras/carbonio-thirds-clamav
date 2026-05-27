@@ -2,8 +2,9 @@ pkgname="carbonio-clamav"
 pkgver="1.5.2" # renovate: datasource=repology depName=arch/clamav
 pkgrel="1"
 _rust_version="1.94.1" # renovate: datasource=github-releases depName=rust-lang/rust
+_rustup_version="1.29.0" # renovate: datasource=github-releases depName=rust-lang/rustup
 pkgdesc="Anti-virus toolkit for Unix"
-arch=('x86_64')
+arch=('aarch64' 'x86_64')
 maintainer="Zextras <packages@zextras.com>"
 url="https://github.com/zextras"
 license=('GPL-2.0-or-later')
@@ -27,6 +28,7 @@ makedepends__apt=(
   "libncursesw5-dev"
   "libpcre2-dev"
   "libsystemd-dev"
+  "pkg-config"
   "systemd"
   "zlib1g-dev"
 )
@@ -49,14 +51,17 @@ makedepends__yum=(
   "json-c-devel"
   "ncurses-devel"
   "pcre2-devel"
+  "pkgconf-pkg-config"
   "systemd-devel"
   "zlib-devel"
 )
 section="utils"
 priority="optional"
+options=('!libtool' '!staticlibs')
 source=(
   "https://www.clamav.net/downloads/production/clamav-${pkgver}.tar.gz"
   "https://dl.fedoraproject.org/pub/fedora/linux/development/rawhide/Everything/x86_64/os/Packages/c/clamav-data-1.4.4-1.fc45.noarch.rpm"
+  "rustup-init::https://static.rust-lang.org/rustup/archive/${_rustup_version}/x86_64-unknown-linux-gnu/rustup-init"
   "211-carbonio-clamav-setup.sh"
   "carbonio-antivirus.service"
   "carbonio-clamav"
@@ -70,10 +75,12 @@ source=(
   "systemd-sysuser.conf"
   "systemd-tmpfile.conf"
   "sd_notify.patch"
+  "aarch64-systemd.pc"
 )
 sha256sums=(
   'f34018cf22f05bdd9d1a1574ca07193e3e030ca52050c3e5c220e23a32314965'
   'SKIP'
+  '4acc9acc76d5079515b46346a485974457b5a79893cfb01112423c89aeb5aa10'
   'cc36d9357d4434ff290e46a713da8246420750a5fafdf148ce0787b531a093a5'
   '059cadd4bb34f426cb6ae2389fa81403fe8603a95ec33bbcde40c6a17cd2e0c3'
   '17eb4bc768694acdb4dd3a7b191cbcd185a1f7b14b417f5a351a5ab292cc14d3'
@@ -87,6 +94,7 @@ sha256sums=(
   '1532817e2cfefd6f0ff46fbd76e1e4a7f54b6f4cbf243944fa9721f36465c266'
   'f8b61f9e923025c3a4ed7a70fb05a1ab68cd0889bf387c6d900aa8946a5a7bd0'
   '4c814c57935a65c317e3a9cd017e7674eeb4bf99087a44c9841559e284bf2f72'
+  '3c8b440a0421eea96b9a4989401dc9732bddada1dc7c6584e969c2e1d7891f21'
 )
 
 _package() {
@@ -100,9 +108,6 @@ _package() {
   tar -xvf "${srcdir}"/clamav-data-*.tgz \
     --strip-components=4 \
     -C "${pkgdir}/opt/zextras/data/clamav/db"
-
-  find "${pkgdir}" -name '*.a' -delete
-  find "${pkgdir}" -name '*.la' -delete
 
   rm -rf "${pkgdir}/usr"
   rm -rf "${pkgdir}/lib"
@@ -192,15 +197,29 @@ _prerm_systemd() {
 }
 
 prepare() {
-  # Install rustup if not present
-  if ! command -v rustup &>/dev/null; then
-    echo "Installing rustup..."
-    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain "${_rust_version}"
-    source "$HOME/.cargo/env"
+  # Install rustup if not present. The rustup-init binary is fetched via yap's
+  # source array (using Go's HTTP client — no curl dependency) and is the
+  # build-host arch (x86_64) regardless of the target arch we cross-compile to.
+  # --no-modify-path: don't touch $HOME/.profile (we add ~/.cargo/bin manually).
+  if [ ! -x "$HOME/.cargo/bin/rustup" ]; then
+    echo "Installing rustup from pinned rustup-init..."
+    install -Dm755 "${srcdir}/rustup-init" "${srcdir}/rustup-init.bin"
+    "${srcdir}/rustup-init.bin" -y --no-modify-path --default-toolchain "${_rust_version}"
   fi
 
-  # Ensure pinned toolchain is installed and set as default
+  # Always make cargo/rustup available on PATH for the rest of this script.
+  export PATH="$HOME/.cargo/bin:$PATH"
+
+  # Ensure pinned toolchain is installed and set as default. Idempotent —
+  # rustup will no-op if the version is already the default.
   rustup default "${_rust_version}"
+
+  # Add aarch64 cross-compilation target if building for aarch64. Idempotent —
+  # rustup will no-op if the target is already installed, and re-install it if
+  # the toolchain dir was partially wiped between runs.
+  if [ -n "${CROSS_COMPILE}" ]; then
+    rustup target add aarch64-unknown-linux-gnu
+  fi
 
   cd "${srcdir}/clamav-${pkgver}"
   patch -Np1 -i "${srcdir}/sd_notify.patch"
@@ -210,8 +229,47 @@ build() {
   # Add cargo to PATH
   export PATH="$HOME/.cargo/bin:/opt/zextras/common/bin:$PATH"
 
-  export LDFLAGS="-Wl,-rpath,/opt/zextras/common/lib -L/opt/zextras/common/lib"
+  export LDFLAGS="-Wl,-rpath,/opt/zextras/common/lib -L/opt/zextras/common/lib -L/opt/zextras/common/lib64"
   export CPPFLAGS="-I/opt/zextras/common/include"
+  export PKG_CONFIG_PATH="/opt/zextras/common/lib/pkgconfig:/opt/zextras/common/lib64/pkgconfig:${PKG_CONFIG_PATH}"
+  # Prepend carbonio's pkgconfig dir so cmake's FindLibXml2 (and any other
+  # pkg-config-driven Find*.cmake) discover sibling carbonio-* libs.
+
+  _cmake_cross_flags=""
+  if [ -n "${CROSS_COMPILE}" ]; then
+    # Install the aarch64 Rust target here (not in prepare) because yap only
+    # injects CROSS_COMPILE during the build stage. Idempotent.
+    rustup target add aarch64-unknown-linux-gnu
+
+    # clamav's FindSYSTEMD.cmake needs systemd.pc (separate from libsystemd.pc)
+    # to discover the unit install dir. Under cross-compile pkg-config only
+    # consults the target-arch pkgconfig dir, so the host's systemd.pc is
+    # invisible — drop a minimal stub there.
+    install -Dm644 "${srcdir}/aarch64-systemd.pc" \
+      /usr/lib/aarch64-linux-gnu/pkgconfig/systemd.pc
+
+    # openssl-sys's cc crate derives -m64 from the host (x86_64); override with
+    # target-specific CFLAGS that have no -m64
+    export CFLAGS_AARCH64_UNKNOWN_LINUX_GNU="${CFLAGS_AARCH64_UNKNOWN_LINUX_GNU} -I/opt/zextras/common/include"
+
+    # Extend yap's CMAKE_FIND_ROOT_PATH with the carbonio install prefix so
+    # find_library/find_package can locate sibling carbonio-* libraries under
+    # /opt/zextras/common while still rejecting host-arch system libs.
+    # YAP_CMAKE_EXTRA_ROOT_PATH is consumed by the yap-generated toolchain.
+    export YAP_CMAKE_EXTRA_ROOT_PATH="/opt/zextras/common"
+
+    # Use yap's CMAKE_TOOLCHAIN_FILE
+    _cmake_cross_flags="-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} \
+      -DOPENSSL_ROOT_DIR=/opt/zextras/common \
+      -DOPENSSL_INCLUDE_DIR=/opt/zextras/common/include \
+      -DOPENSSL_CRYPTO_LIBRARY=/opt/zextras/common/lib/libcrypto.so \
+      -DOPENSSL_SSL_LIBRARY=/opt/zextras/common/lib/libssl.so \
+      -Dtest_run_result=0 \
+      -Dtest_run_result__TRYRUN_OUTPUT="" \
+      -DRUST_COMPILER_TARGET=aarch64-unknown-linux-gnu \
+      -DENABLE_SYSTEMD=ON"
+  fi
+
   cd "${srcdir}/clamav-${pkgver}"
 
   cmake . \
@@ -222,7 +280,8 @@ build() {
     -DCVD_CERTS_DIRECTORY=/opt/zextras/conf/certs \
     -DENABLE_MILTER=false \
     -DENABLE_SYSTEMD=ON \
-    -DENABLE_TESTS=OFF
+    -DENABLE_TESTS=OFF \
+    ${_cmake_cross_flags}
 
   make -j"$(($(nproc) / 2))"
 }

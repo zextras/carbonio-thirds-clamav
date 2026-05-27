@@ -1,0 +1,6 @@
+prefix=/usr
+systemdsystemunitdir=/usr/lib/systemd/system
+
+Name: systemd
+Description: systemd
+Version: 249
