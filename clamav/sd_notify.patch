@@ -1,0 +1,52 @@
+diff '--color=auto' -Naur a/clamd/clamd.c b/clamd/clamd.c
+--- a/clamd/clamd.c	2026-04-04 01:35:22.332944058 +0200
++++ b/clamd/clamd.c	2026-04-04 01:35:29.646832722 +0200
+@@ -57,6 +57,10 @@
+ 
+ #include "target.h"
+ 
++#ifdef HAVE_SYSTEMD
++#include <systemd/sd-daemon.h>
++#endif
++
+ // libclamav
+ #include "clamav.h"
+ #include "others.h"
+@@ -896,6 +900,11 @@
+             break;
+         }
+ 
++#ifdef HAVE_SYSTEMD
++        sd_notify(0, "READY=1\n"
++                      "STATUS=clamd is ready, scanning enabled");
++#endif
++
+         ret = recvloop(lsockets, nlsockets, engine, dboptions, opts);
+ 
+     } while (0);
+diff '--color=auto' -Naur a/freshclam/freshclam.c b/freshclam/freshclam.c
+--- a/freshclam/freshclam.c	2026-04-04 01:35:22.342150910 +0200
++++ b/freshclam/freshclam.c	2026-04-04 01:35:29.647015387 +0200
+@@ -50,6 +50,10 @@
+ 
+ #include "target.h"
+ 
++#ifdef HAVE_SYSTEMD
++#include <systemd/sd-daemon.h>
++#endif
++
+ // libclamav
+ #include "clamav.h"
+ #include "others.h"
+@@ -2074,6 +2078,11 @@
+ 
+         logg(LOGG_INFO_NF, "freshclam daemon %s (OS: " TARGET_OS_TYPE ", ARCH: " TARGET_ARCH_TYPE ", CPU: " TARGET_CPU_TYPE ")\n", get_version());
+ 
++#ifdef HAVE_SYSTEMD
++        sd_notify(0, "READY=1\n"
++                      "STATUS=freshclam daemon started, updating signatures");
++#endif
++
+         while (!g_terminate) {
+             ret = perform_database_update(
+                 databaseList,

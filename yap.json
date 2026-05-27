@@ -1,0 +1,11 @@
+{
+  "name": "clamav",
+  "description": "This is the manifest to build clamav-related third-party packages",
+  "buildDir": "/tmp/",
+  "output": "artifacts",
+  "projects": [
+    {
+      "name": "clamav"
+    }
+  ]
+}

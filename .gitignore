@@ -1,0 +1,8 @@
+*.deb
+*.rpm
+*.tar.*
+*.tgz
+start
+artifacts
+.trunk
+.vscode*
