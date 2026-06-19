@@ -1,7 +1,7 @@
 pkgname="carbonio-clamav"
 pkgver="1.5.2" # renovate: datasource=repology depName=arch/clamav
 pkgrel="1"
-_rust_version="1.94.1" # renovate: datasource=github-releases depName=rust-lang/rust
+_rust_version="1.94.1"   # renovate: datasource=github-releases depName=rust-lang/rust
 _rustup_version="1.29.0" # renovate: datasource=github-releases depName=rust-lang/rustup
 pkgdesc="Anti-virus toolkit for Unix"
 arch=('aarch64' 'x86_64')
@@ -82,12 +82,12 @@ sha256sums=(
   'SKIP'
   '4acc9acc76d5079515b46346a485974457b5a79893cfb01112423c89aeb5aa10'
   'cc36d9357d4434ff290e46a713da8246420750a5fafdf148ce0787b531a093a5'
-  '059cadd4bb34f426cb6ae2389fa81403fe8603a95ec33bbcde40c6a17cd2e0c3'
+  '479c0488d1e9a5b8312cd513bc8939858fc0eb6eb57dc5bcf2ab5c3e8a418fe9'
   '17eb4bc768694acdb4dd3a7b191cbcd185a1f7b14b417f5a351a5ab292cc14d3'
-  '372287e25befef39b4717865dcfe95c4a8a51586e53d9a3825bbea6d7522eb7e'
-  'aff498813ef33623954fe8dc92cfba263cbe3bb0de3cfc9996bd82c180508734'
+  '5b4f01de4a04a4d1a41747c3dc122c1536d2ed34d9ed8e16ce8cea597a5c4ca7'
+  '759ac73b2c0e83b9b2bcb6fe346aa55c5a672425c53c8ba4830b69ad5b6d47c0'
   '08fa4a2b6cd15a5dc9394743692306d6762a21f3b94df28abcaee51d54b30250'
-  '41b7c14ec1c52307176dadb818b5318d094d3a75bd11de5236bf42dfdfaab455'
+  'a0bef4d59bff74ed441e2e39c6806cb2e2ffae90eaa14ebc4774238d8a63f9e1'
   'df54edd32986b4213a09069681741ba7533dc40a034a6a2b080cdf380a69fb05'
   'd67bb7f9d98ccb033f632621accf3d8a3391aa3955074af958c0def644be0ef5'
   '6c1f94857671bd044fe4dac20df1f927629c50bfbb0aa9991e6de1a73d1791a0'
@@ -278,7 +278,8 @@ build() {
     -DENABLE_TESTS=OFF \
     ${_cmake_cross_flags}
 
-  _jobs=$(($(nproc) / 2)); [ "$_jobs" -lt 1 ] && _jobs=1
+  _jobs=$(($(nproc) / 2))
+  [ "$_jobs" -lt 1 ] && _jobs=1
   make -j"$_jobs"
 }
 
