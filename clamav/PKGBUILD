@@ -60,7 +60,11 @@ priority="optional"
 options=('!libtool' '!staticlibs')
 source=(
   "https://www.clamav.net/downloads/production/clamav-${pkgver}.tar.gz"
-  "https://dl.fedoraproject.org/pub/fedora/linux/development/rawhide/Everything/x86_64/os/Packages/c/clamav-data-1.4.4-1.fc45.noarch.rpm"
+  # Fedora koji: immutable, permanently archived builds (unlike the rawhide
+  # repo, whose packages are garbage-collected on every rebuild). SKIP because
+  # the payload is a signature snapshot we do not want to re-pin by hand;
+  # freshclam refreshes it on first start anyway.
+  "https://kojipkgs.fedoraproject.org/packages/clamav/1.4.5/2.el9/noarch/clamav-data-1.4.5-2.el9.noarch.rpm"
   "rustup-init::https://static.rust-lang.org/rustup/archive/${_rustup_version}/x86_64-unknown-linux-gnu/rustup-init"
   "211-carbonio-clamav-setup.sh"
   "carbonio-antivirus.service"
