@@ -23,6 +23,7 @@ makedepends__apt=(
   "alien"
   "check"
   "cmake"
+  "libbrotli-dev"
   "libbz2-dev"
   "libjson-c-dev"
   "libncursesw5-dev"
