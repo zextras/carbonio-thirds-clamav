@@ -23,6 +23,13 @@ makedepends__apt=(
   "alien"
   "check"
   "cmake"
+  # carbonio-curl's libcurl.so has DT_NEEDED on libbrotlidec.so.1. On aarch64
+  # cross builds yap extracts libbrotli1:arm64 into its cross-sysroot only
+  # (the host already has libbrotli1:amd64), where ld does not look, so
+  # clamsubmit/clamonacc fail to link. Declaring the dev package makes yap
+  # apt-install libbrotli-dev:arm64 into /usr/lib/aarch64-linux-gnu, which is
+  # on the cross linker's default search path.
+  "libbrotli-dev"
   "libbz2-dev"
   "libjson-c-dev"
   "libncursesw5-dev"
