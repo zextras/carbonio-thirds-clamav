@@ -31,9 +31,7 @@ pipeline {
         }
 
         stage('Security Scan') {
-            steps {
-                gitleaksStage()
-            }
+            steps { gitleaksStage() }
         }
 
         stage('SonarQube analysis') {
@@ -83,6 +81,12 @@ pipeline {
                     architecture: 'aarch64',
                     distros: ['ubuntu-jammy'],
                 )
+            }
+        }
+
+        stage('Semantic Release') {
+            steps {
+                semanticRelease()
             }
         }
     }
