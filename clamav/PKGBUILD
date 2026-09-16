@@ -1,5 +1,5 @@
 pkgname="carbonio-clamav"
-pkgver="1.5.3" # renovate: datasource=repology depName=arch/clamav
+pkgver="1.5.4" # renovate: datasource=repology depName=arch/clamav
 pkgrel="1"
 _rust_version="1.94.1"   # renovate: datasource=github-releases depName=rust-lang/rust
 _rustup_version="1.29.0" # renovate: datasource=github-releases depName=rust-lang/rustup
@@ -61,7 +61,7 @@ priority="optional"
 options=('!libtool' '!staticlibs')
 source=(
   "https://www.clamav.net/downloads/production/clamav-${pkgver}.tar.gz"
-  "https://kojipkgs.fedoraproject.org/packages/clamav/1.4.5/2.el9/noarch/clamav-data-1.4.5-2.el9.noarch.rpm"
+  "https://kojipkgs.fedoraproject.org/packages/clamav/1.4.6/1.el9/noarch/clamav-data-1.4.6-1.el9.noarch.rpm"
   "rustup-init::https://static.rust-lang.org/rustup/archive/${_rustup_version}/x86_64-unknown-linux-gnu/rustup-init"
   "211-carbonio-clamav-setup.sh"
   "carbonio-antivirus.service"
@@ -79,8 +79,8 @@ source=(
   "aarch64-systemd.pc"
 )
 sha256sums=(
-  '89af57a45bbf13de4dc91ed7f20b435388c88428eb7dc30639a02b2f0fc2dad1'
-  'SKIP'
+  '1af1117a228f1b5bc7fa91a0dabc37848a99e7d25188e9be8043332ce721dfd3'
+  'c5138de30115caba5026dc613be0241a0edd7d1d90bf250bd4a208b9dd05e883'
   '4acc9acc76d5079515b46346a485974457b5a79893cfb01112423c89aeb5aa10'
   'cc36d9357d4434ff290e46a713da8246420750a5fafdf148ce0787b531a093a5'
   '479c0488d1e9a5b8312cd513bc8939858fc0eb6eb57dc5bcf2ab5c3e8a418fe9'
