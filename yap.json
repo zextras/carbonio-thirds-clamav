@@ -3,6 +3,7 @@
   "description": "This is the manifest to build clamav-related third-party packages",
   "buildDir": "/tmp/",
   "output": "artifacts",
+  "skipDeps": ["service-discover-base"],
   "projects": [
     {
       "name": "clamav"
