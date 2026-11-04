@@ -1,6 +1,6 @@
 pkgname="carbonio-clamav"
 pkgver="1.5.4" # renovate: datasource=repology depName=arch/clamav
-pkgrel="1"
+pkgrel="2"
 _rust_version="1.94.1"   # renovate: datasource=github-releases depName=rust-lang/rust
 _rustup_version="1.29.0" # renovate: datasource=github-releases depName=rust-lang/rustup
 pkgdesc="Anti-virus toolkit for Unix"
