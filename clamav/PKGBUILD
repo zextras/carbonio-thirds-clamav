@@ -1,6 +1,6 @@
 pkgname="carbonio-clamav"
 pkgver="1.5.4" # renovate: datasource=repology depName=arch/clamav
-pkgrel="1"
+pkgrel="2"
 _rust_version="1.94.1"   # renovate: datasource=github-releases depName=rust-lang/rust
 _rustup_version="1.29.0" # renovate: datasource=github-releases depName=rust-lang/rustup
 pkgdesc="Anti-virus toolkit for Unix"
@@ -87,7 +87,7 @@ sha256sums=(
   'a3b9215bab67be4ce49bc25cc7de5de5efe8beb029a53ca4a9caa51ba5d15bf3'
   '5b4f01de4a04a4d1a41747c3dc122c1536d2ed34d9ed8e16ce8cea597a5c4ca7'
   '759ac73b2c0e83b9b2bcb6fe346aa55c5a672425c53c8ba4830b69ad5b6d47c0'
-  '08fa4a2b6cd15a5dc9394743692306d6762a21f3b94df28abcaee51d54b30250'
+  '2c644c4aa9c466c21cec3b1ddd22fd6f8c3579e4a3a60ca42aba8feab6a2744c'
   'a0bef4d59bff74ed441e2e39c6806cb2e2ffae90eaa14ebc4774238d8a63f9e1'
   'df54edd32986b4213a09069681741ba7533dc40a034a6a2b080cdf380a69fb05'
   'd67bb7f9d98ccb033f632621accf3d8a3391aa3955074af958c0def644be0ef5'

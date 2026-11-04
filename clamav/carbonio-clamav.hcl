@@ -9,7 +9,7 @@ services {
       proxy {
         upstreams = [
           {
-            destination_name   = "carbonio-clamav-signature-provider"
+            destination_name   = "carbonio-avdb-updater"
             local_bind_port    = 20000
             local_bind_address = "127.78.0.20"
           }

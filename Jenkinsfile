@@ -52,6 +52,23 @@ pipeline {
             }
         }
 
+        stage('Publish docker images') {
+            steps {
+                dockerStage([
+                    dockerfile: 'docker/clamav/Dockerfile',
+                    imageName: 'carbonio-clamav',
+                    ocLabels: [title: 'Carbonio ClamAV'],
+                    platforms: ['linux/amd64', 'linux/arm64'] as Set,
+                ])
+                dockerStage([
+                    dockerfile: 'docker/clamav-sidecar/Dockerfile',
+                    imageName: 'carbonio-clamav-sidecar',
+                    ocLabels: [title: 'Carbonio ClamAV Sidecar'],
+                    platforms: ['linux/amd64', 'linux/arm64'] as Set,
+                ])
+            }
+        }
+
         stage('Build deb/rpm') {
             steps {
                 echo 'Building deb/rpm packages'
