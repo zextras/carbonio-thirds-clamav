@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM docker.io/library/ubuntu:jammy AS installer
+FROM --platform=$BUILDPLATFORM docker.io/library/ubuntu:resolute AS installer
 
 ARG TARGETARCH
 ARG BUILDARCH=amd64
@@ -37,7 +37,7 @@ RUN apt-get update \
  && chown -R 999:999 /staging/opt/zextras/data/clamav \
  && rm -rf /var/lib/apt/lists/*
 
-FROM --platform=$TARGETPLATFORM docker.io/library/ubuntu:jammy
+FROM --platform=$TARGETPLATFORM docker.io/library/ubuntu:resolute
 
 ENV LD_LIBRARY_PATH=/opt/zextras/common/lib:/usr/local/lib
 
